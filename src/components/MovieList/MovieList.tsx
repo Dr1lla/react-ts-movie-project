@@ -1,7 +1,7 @@
 import React, { FC, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '../../store/store';
-import { fetchMoviesThunk, fetchMoviesByGenreThunk, searchMoviesThunk } from '../../store/movieSlice';
+import { fetchMoviesThunk, fetchMoviesByGenreThunk, searchMoviesThunk } from '../../store/movieSlice'; // Використовуємо Thunks
 import MoviesListCard from '../MovieListCard/MovieListCard';
 import './MovieList.css';
 import { useParams } from 'react-router-dom';
@@ -9,7 +9,7 @@ import { MovieInterface } from '../../interfaces/Movie.interface';
 
 const MoviesList: FC = () => {
     const dispatch = useDispatch<AppDispatch>();
-    const movies = useSelector((state: RootState) => state.movies.movies);
+    const movies = useSelector((state: RootState) => state.movies.movies.results);
     const searchResults = useSelector((state: RootState) => state.movies.searchResults);
     const status = useSelector((state: RootState) => state.movies.status);
     const searchTerm = useSelector((state: RootState) => state.movies.searchTerm);
@@ -17,12 +17,12 @@ const MoviesList: FC = () => {
     const [page, setPage] = useState(1);
 
     useEffect(() => {
-        if (!genreId && !searchTerm) {
+        if (!searchTerm && !genreId) {
             dispatch(fetchMoviesThunk({ page }));
         } else if (genreId) {
             dispatch(fetchMoviesByGenreThunk({ genreId: parseInt(genreId), page }));
         } else {
-            dispatch(searchMoviesThunk(searchTerm));
+            dispatch(searchMoviesThunk({ query: searchTerm, page }));
         }
     }, [dispatch, page, searchTerm, genreId]);
 
@@ -36,8 +36,12 @@ const MoviesList: FC = () => {
         }
     };
 
-    // Явно вказуємо тип movieList
-    const movieList: MovieInterface[] = searchResults || movies;
+    let movieList: MovieInterface[] = [];
+    if (!searchTerm) {
+        movieList = movies || [];
+    } else {
+        movieList = searchResults || [];
+    }
 
     return (
         <div className="movies-list-container">

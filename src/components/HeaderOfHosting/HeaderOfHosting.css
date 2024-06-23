@@ -73,3 +73,15 @@
 .genre-item:hover {
     background-color: #555;
 }
+
+.dark-theme {
+    background-color: #1f1f1f;
+    color: #ffffff;
+    transition: background-color 1s ease;
+}
+
+.light-theme {
+    background-color: #ffffff;
+    color: #1f1f1f;
+    transition: background-color 1s ease;
+}

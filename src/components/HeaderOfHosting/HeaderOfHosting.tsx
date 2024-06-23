@@ -1,56 +1,61 @@
-
 import React, { FC, useState, useEffect } from 'react';
 import { FaUserCircle } from 'react-icons/fa';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../../store/store';
 import { fetchGenres } from '../../services/tmdbApi';
-import { searchMoviesThunk } from '../../store/movieSlice';
+import { searchMoviesThunk, resetSearchResults } from '../../store/movieSlice'; // Імпортуємо resetSearchResults
 import './HeaderOfHosting.css';
 import { useNavigate } from 'react-router-dom';
 
 interface HeaderProps {
-    onThemeToggle: () => void;
+    onThemeToggle: () => void; // Пропс для зміни теми
+    isDarkTheme: boolean; // Пропс для визначення поточної теми
 }
 
-const HeaderOfHosting: FC<HeaderProps> = ({ onThemeToggle }) => {
-    const [searchTerm, setSearchTerm] = useState(''); // Стан для терміну пошуку
-    const [genres, setGenres] = useState<{ id: number, name: string }[]>([]); // Стан для жанрів
-    const [showGenres, setShowGenres] = useState(false); // Стан для відображення підменю жанрів
+const HeaderOfHosting: FC<HeaderProps> = ({ onThemeToggle, isDarkTheme }) => {
+    const [searchTerm, setSearchTerm] = useState('');
+    const [genres, setGenres] = useState<{ id: number, name: string }[]>([]);
+    const [showGenres, setShowGenres] = useState(false);
     const dispatch = useDispatch<AppDispatch>();
     const navigate = useNavigate();
 
     useEffect(() => {
-        fetchGenres().then(data => setGenres(data.genres)); // Завантаження жанрів при завантаженні компоненту
+        fetchGenres().then(data => setGenres(data.genres));
     }, []);
 
     const handleSearch = () => {
         if (searchTerm.trim()) {
-            dispatch(searchMoviesThunk(searchTerm)); // Диспатч пошукового запиту
-            navigate('/search'); // Перехід на сторінку з результатами пошуку
+            dispatch(searchMoviesThunk({ query: searchTerm, page: 1 }));
+            navigate('/search');
         }
     };
 
     const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === 'Enter') {
-            handleSearch(); // Запуск пошуку при натисканні Enter
+            handleSearch();
         }
     };
 
     const handleHomeClick = () => {
-        navigate('/'); // Перехід на головну сторінку
+        dispatch(resetSearchResults());
+        navigate('/');
     };
 
     const handleGenreClick = (genreId: number) => {
-        navigate(`/genres/${genreId}`); // Перехід на сторінку обраного жанру
-        setShowGenres(false); // Приховати підменю після вибору жанру
+        navigate(`/genres/${genreId}`);
+        setShowGenres(false);
     };
 
     const handleGenresMouseEnter = () => {
-        setShowGenres(true); // Показати підменю при наведенні
+        setShowGenres(true);
     };
 
     const handleGenresMouseLeave = () => {
-        setShowGenres(false); // Приховати підменю при відведенні миші
+        setShowGenres(false);
+    };
+
+    const toggleTheme = () => {
+        onThemeToggle(); // Викликаємо пропс для зміни теми
     };
 
     return (
@@ -59,7 +64,7 @@ const HeaderOfHosting: FC<HeaderProps> = ({ onThemeToggle }) => {
                 <h1>Movie Hosting App</h1>
             </div>
             <div className="header-center">
-                <button className="header-button" onClick={handleHomeClick}>Головна</button> {/* Кнопка для переходу на головну сторінку */}
+                <button className="header-button" onClick={handleHomeClick}>Головна</button>
                 <div
                     className="header-button genres-button"
                     onMouseEnter={handleGenresMouseEnter}
@@ -86,10 +91,12 @@ const HeaderOfHosting: FC<HeaderProps> = ({ onThemeToggle }) => {
                     className="header-search"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    onKeyDown={handleKeyPress} // Запуск пошуку при натисканні Enter
+                    onKeyDown={handleKeyPress}
                 />
                 <button onClick={handleSearch}>Пошук</button>
-                <button className="header-theme-toggle" onClick={onThemeToggle}>Змінити тему</button>
+                <button className="header-theme-toggle" onClick={toggleTheme}>
+                    {isDarkTheme ? 'Змінити на світлу' : 'Змінити на темну'}
+                </button>
             </div>
             <div className="header-right">
                 <span className="header-user-info">Ім'я користувача</span>
