@@ -1,0 +1,19 @@
+.poster-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 10px;
+}
+
+.poster-preview img {
+    width: 200px;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.poster-preview p {
+    text-align: center;
+    margin-top: 8px;
+    font-size: 14px;
+}

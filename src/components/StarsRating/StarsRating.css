@@ -1,0 +1,13 @@
+.stars-rating {
+    display: inline-block;
+    font-size: 20px; /* Розмір зірочок */
+    color: #ddd; /* Колір пустих зірочок */
+}
+
+.stars-rating .star {
+    cursor: default;
+}
+
+.stars-rating .star.filled {
+    color: #f8d74a; /* Колір заповнених зірочок (жовтий) */
+}

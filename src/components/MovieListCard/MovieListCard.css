@@ -1,0 +1,31 @@
+.movie-card {
+    display: flex;
+    flex-direction: column;
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out;
+    margin-bottom: 20px;
+}
+
+.movie-card-content {
+    padding: 16px;
+}
+
+.movie-card-rating {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    background-color: #f5f5f5;
+    padding: 8px;
+    border-top: 1px solid #e0e0e0;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+
+}
+
+.movie-card-rating .stars-rating {
+    font-size: 18px;
+}
