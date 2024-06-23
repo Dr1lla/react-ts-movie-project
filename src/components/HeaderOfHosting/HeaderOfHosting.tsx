@@ -1,62 +1,56 @@
+
 import React, { FC, useState, useEffect } from 'react';
 import { FaUserCircle } from 'react-icons/fa';
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '../../store/store';
-import { searchMoviesThunk, fetchMoviesByGenreThunk } from '../../store/movieSlice';
+import { fetchGenres } from '../../services/tmdbApi';
+import { searchMoviesThunk } from '../../store/movieSlice';
 import './HeaderOfHosting.css';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-
-interface Genre {
-    id: number;
-    name: string;
-}
 
 interface HeaderProps {
     onThemeToggle: () => void;
 }
 
 const HeaderOfHosting: FC<HeaderProps> = ({ onThemeToggle }) => {
-    const [searchTerm, setSearchTerm] = useState('');
-    const [genres, setGenres] = useState<Genre[]>([]);
-    const [isDropdownVisible, setDropdownVisible] = useState(false);
+    const [searchTerm, setSearchTerm] = useState(''); // Стан для терміну пошуку
+    const [genres, setGenres] = useState<{ id: number, name: string }[]>([]); // Стан для жанрів
+    const [showGenres, setShowGenres] = useState(false); // Стан для відображення підменю жанрів
     const dispatch = useDispatch<AppDispatch>();
     const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchGenres = async () => {
-            const response = await axios.get('https://api.themoviedb.org/3/genre/movie/list', {
-                params: {
-                    api_key: '1784c92203fc49d4745e3105e1b62993',
-                },
-            });
-            setGenres(response.data.genres);
-        };
-
-        fetchGenres();
+        fetchGenres().then(data => setGenres(data.genres)); // Завантаження жанрів при завантаженні компоненту
     }, []);
 
     const handleSearch = () => {
         if (searchTerm.trim()) {
-            dispatch(searchMoviesThunk({ query: searchTerm, page: 1 }));
-            navigate('/search');
+            dispatch(searchMoviesThunk(searchTerm)); // Диспатч пошукового запиту
+            navigate('/search'); // Перехід на сторінку з результатами пошуку
         }
     };
 
-    const handleGenreClick = (genreId: number) => {
-        dispatch(fetchMoviesByGenreThunk({ genreId, page: 1 }));
-        navigate(`/genre/${genreId}`);
-        setDropdownVisible(false);
-    };
-
-    const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === 'Enter') {
-            handleSearch();
+            handleSearch(); // Запуск пошуку при натисканні Enter
         }
     };
 
     const handleHomeClick = () => {
-        navigate('/');
+        navigate('/'); // Перехід на головну сторінку
+    };
+
+    const handleGenreClick = (genreId: number) => {
+        navigate(`/genres/${genreId}`); // Перехід на сторінку обраного жанру
+        setShowGenres(false); // Приховати підменю після вибору жанру
+    };
+
+    const handleGenresMouseEnter = () => {
+        setShowGenres(true); // Показати підменю при наведенні
+    };
+
+    const handleGenresMouseLeave = () => {
+        setShowGenres(false); // Приховати підменю при відведенні миші
     };
 
     return (
@@ -65,25 +59,19 @@ const HeaderOfHosting: FC<HeaderProps> = ({ onThemeToggle }) => {
                 <h1>Movie Hosting App</h1>
             </div>
             <div className="header-center">
-                <button className="header-button" onClick={handleHomeClick}>Головна</button>
-                <div className="dropdown">
-                    <button
-                        className="header-button"
-                        onMouseEnter={() => setDropdownVisible(true)}
-                        onMouseLeave={() => setDropdownVisible(false)}
-                    >
-                        Жанри
-                    </button>
-                    {isDropdownVisible && (
-                        <div
-                            className="dropdown-menu"
-                            onMouseEnter={() => setDropdownVisible(true)}
-                            onMouseLeave={() => setDropdownVisible(false)}
-                        >
+                <button className="header-button" onClick={handleHomeClick}>Головна</button> {/* Кнопка для переходу на головну сторінку */}
+                <div
+                    className="header-button genres-button"
+                    onMouseEnter={handleGenresMouseEnter}
+                    onMouseLeave={handleGenresMouseLeave}
+                >
+                    Жанри
+                    {showGenres && (
+                        <div className="genres-dropdown">
                             {genres.map((genre) => (
                                 <div
                                     key={genre.id}
-                                    className="dropdown-item"
+                                    className="genre-item"
                                     onClick={() => handleGenreClick(genre.id)}
                                 >
                                     {genre.name}
@@ -98,9 +86,9 @@ const HeaderOfHosting: FC<HeaderProps> = ({ onThemeToggle }) => {
                     className="header-search"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    onKeyDown={handleKeyDown}
+                    onKeyDown={handleKeyPress} // Запуск пошуку при натисканні Enter
                 />
-                <button onClick={handleSearch}>Enter</button>
+                <button onClick={handleSearch}>Пошук</button>
                 <button className="header-theme-toggle" onClick={onThemeToggle}>Змінити тему</button>
             </div>
             <div className="header-right">

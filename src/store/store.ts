@@ -1,10 +1,15 @@
 import { configureStore } from '@reduxjs/toolkit';
-import moviesReducer from './movieSlice';
+import movieReducer from '../store/movieSlice';
 
 const store = configureStore({
     reducer: {
-        movies: moviesReducer,
+        movies: movieReducer,
+        // Додайте інші редуктори, якщо вони є
     },
+    middleware: (getDefaultMiddleware) =>
+        getDefaultMiddleware({
+            serializableCheck: false, // вимкнення перевірки серіалізації, якщо потрібно
+        }),
 });
 
 export type RootState = ReturnType<typeof store.getState>;
