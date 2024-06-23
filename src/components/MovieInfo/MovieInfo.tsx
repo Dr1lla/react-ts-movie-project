@@ -9,6 +9,7 @@ interface MovieInfoProps {
     releaseDate: string;
     rating: number;
     posterPath: string;
+    genres: string[]; // Додали поле для жанрів
 }
 
 const MovieInfo: FC = () => {
@@ -17,18 +18,33 @@ const MovieInfo: FC = () => {
 
     useEffect(() => {
         const fetchMovie = async () => {
-            const response = await axios.get(`https://api.themoviedb.org/3/movie/${id}`, {
-                params: {
-                    api_key: '1784c92203fc49d4745e3105e1b62993',
-                },
-            });
-            setMovie({
-                title: response.data.title,
-                description: response.data.overview,
-                releaseDate: response.data.release_date,
-                rating: response.data.vote_average,
-                posterPath: response.data.poster_path,
-            });
+            try {
+                const [movieResponse, genresResponse] = await Promise.all([
+                    axios.get(`https://api.themoviedb.org/3/movie/${id}`, {
+                        params: {
+                            api_key: '1784c92203fc49d4745e3105e1b62993',
+                        },
+                    }),
+                    axios.get(`https://api.themoviedb.org/3/movie/${id}/credits`, {
+                        params: {
+                            api_key: '1784c92203fc49d4745e3105e1b62993',
+                        },
+                    }),
+                ]);
+
+                const genres = movieResponse.data.genres.map((genre: { name: string }) => genre.name);
+
+                setMovie({
+                    title: movieResponse.data.title,
+                    description: movieResponse.data.overview,
+                    releaseDate: movieResponse.data.release_date,
+                    rating: movieResponse.data.vote_average,
+                    posterPath: movieResponse.data.poster_path,
+                    genres: genres,
+                });
+            } catch (error) {
+                console.error('Error fetching movie:', error);
+            }
         };
 
         fetchMovie();
@@ -47,6 +63,7 @@ const MovieInfo: FC = () => {
                 className="movie-info-poster"
             />
             <p>{movie.description}</p>
+            <p>Genres: {movie.genres.join(', ')}</p>
             <p>Release Date: {movie.releaseDate}</p>
             <p>Rating: {movie.rating}</p>
         </div>

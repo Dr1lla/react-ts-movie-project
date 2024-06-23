@@ -4,15 +4,6 @@ import { MovieInterface } from '../../interfaces/Movie.interface';
 import PosterPreview from "../PosterRreview/PosterRreview";
 import StarsRating from '../StarsRating/StarsRating';
 
-
-interface MovieInfoProps {
-    title: string;
-    description: string;
-    releaseDate: string;
-    rating: number;
-    posterPath: string;
-}
-
 interface MoviesListCardProps {
     movie: MovieInterface;
 }

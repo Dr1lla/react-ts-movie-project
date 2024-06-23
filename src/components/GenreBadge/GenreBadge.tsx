@@ -1,10 +1,9 @@
-import React, { FC } from 'react';
-import './GenreBadge.css';
+import React from 'react';
 
-const GenreBadge: FC = () => {
+const GenreBadge = () => {
     return (
-        <div className="genre-badge">
-            {/* Ваш код для GenreBadge */}
+        <div>
+            
         </div>
     );
 };
